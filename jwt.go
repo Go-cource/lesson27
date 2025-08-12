@@ -7,6 +7,11 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+type User struct {
+	UserId   int
+	UserName string
+}
+
 type Claims struct {
 	jwt.RegisteredClaims
 	UserId   int
@@ -31,10 +36,20 @@ func BuildJWTString() (string, error) {
 	return tokenString, nil
 }
 
+func GetData(tokenString string) User {
+	claims := &Claims{}
+	jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
+		return []byte(SECRET_KEY), nil
+	})
+	user := User{UserId: claims.UserId, UserName: claims.UserName}
+	return user
+}
+
 func main() {
 	tokenString, err := BuildJWTString()
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println(tokenString)
+	fmt.Println(GetData(tokenString))
 }
